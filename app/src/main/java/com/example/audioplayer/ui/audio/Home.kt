@@ -1,10 +1,6 @@
 package com.example.audioplayer.ui.audio
 
-import android.provider.MediaStore
-import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -46,8 +41,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
 import com.example.audioplayer.data.local.model.Audio
 import kotlin.math.floor
 
@@ -314,7 +307,6 @@ fun ArtistInfo(
 
 @Composable
 fun PlayerIconItem(
-    modifier: Modifier = Modifier,
     icon: ImageVector,
     borderStroke: BorderStroke? = null,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,

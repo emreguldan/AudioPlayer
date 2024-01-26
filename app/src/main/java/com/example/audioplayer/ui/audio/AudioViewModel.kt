@@ -30,6 +30,7 @@ private val audioDummy = Audio(
 )
 
 
+@OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
 class AudioViewModel @Inject constructor(
     private val audioServiceHandler: AudioServiceHandler,
@@ -44,7 +45,7 @@ class AudioViewModel @Inject constructor(
     var audioList by savedStateHandle.saveable { mutableStateOf(listOf<Audio>())}
 
     private val _uiState : MutableStateFlow<UIState> = MutableStateFlow(UIState.Initial)
-    val uiState: StateFlow<UIState> = _uiState.asStateFlow()
+    //val uiState: StateFlow<UIState> = _uiState.asStateFlow()
 
     init {
         loadAudioData()

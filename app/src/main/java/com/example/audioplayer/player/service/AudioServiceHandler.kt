@@ -27,10 +27,10 @@ class AudioServiceHandler @Inject constructor(
         exoPlayer.addListener(this )
     }
 
-    fun addMediaItem(mediaItem: MediaItem){
+    /*fun addMediaItem(mediaItem: MediaItem){
         exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
-    }
+    }*/
 
     fun setMediaItemList(mediaItems:List<MediaItem>){
         exoPlayer.setMediaItems(mediaItems)
@@ -80,6 +80,14 @@ class AudioServiceHandler @Inject constructor(
 
             ExoPlayer.STATE_READY -> _audioState.value =
                 AudioState.Ready(exoPlayer.duration)
+
+            Player.STATE_ENDED -> {
+                TODO()
+            }
+
+            Player.STATE_IDLE -> {
+                TODO()
+            }
         }
     }
 
