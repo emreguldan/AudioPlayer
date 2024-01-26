@@ -82,11 +82,11 @@ class AudioServiceHandler @Inject constructor(
                 AudioState.Ready(exoPlayer.duration)
 
             Player.STATE_ENDED -> {
-                TODO()
+
             }
 
             Player.STATE_IDLE -> {
-                TODO()
+
             }
         }
     }
