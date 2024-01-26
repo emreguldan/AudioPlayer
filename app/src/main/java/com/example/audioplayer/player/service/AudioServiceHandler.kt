@@ -46,6 +46,7 @@ class AudioServiceHandler @Inject constructor(
             PlayerEvent.BackWard -> exoPlayer.seekBack()
             PlayerEvent.Forward -> exoPlayer.seekForward()
             PlayerEvent.SeekToNext -> exoPlayer.seekToNext()
+            PlayerEvent.SeekToPrevious -> exoPlayer.seekToPrevious()
             PlayerEvent.PlayPause -> playOrPause()
             PlayerEvent.SeekTo -> exoPlayer.seekTo(seekPosition)
             PlayerEvent.SelectedAudioChange -> {
@@ -124,6 +125,7 @@ sealed class PlayerEvent{
     data object SelectedAudioChange:PlayerEvent()
     data object BackWard:PlayerEvent()
     data object SeekToNext:PlayerEvent()
+    data object  SeekToPrevious:PlayerEvent()
     data object Forward:PlayerEvent()
     data object SeekTo:PlayerEvent()
     data object Stop:PlayerEvent()

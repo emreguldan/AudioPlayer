@@ -19,7 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -29,6 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.audioplayer.data.local.model.Audio
 import com.example.audioplayer.player.service.AudioService
 import com.example.audioplayer.ui.Screen
 import com.example.audioplayer.ui.audio.AudioViewModel
@@ -45,8 +49,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: AudioViewModel by viewModels()
     private var isServiceRunning = false
-
-
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,10 +77,13 @@ class MainActivity : ComponentActivity() {
                 }
                 @Composable
                 fun ScreenNavigation() {
+                    val musicList = remember { mutableStateListOf<Audio>()}
                     val navController = rememberNavController()
                     Scaffold(
                         bottomBar = {
-                            BottomAppBar {
+                            BottomAppBar(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ) {
                                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                                 val currentDestination = navBackStackEntry?.destination
                                 items.forEach { screen ->
@@ -116,9 +121,33 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNext = {
                                     viewModel.onUiEvents(UIEvents.SeekToNext)
-                                }
+                                },
+                                onPrevious = {
+                                    viewModel.onUiEvents(UIEvents.SeekToPrevious)
+                                },
+                                addedAudioList = musicList
                             ) }
-                            composable(Screen.List.route) { MusicListScreen()}
+                            composable(Screen.List.route) { MusicListScreen(
+                                progress = viewModel.progress,
+                                onProgress = {viewModel.onUiEvents(UIEvents.SeekTo(it))},
+                                isAudioPlaying = viewModel.isPlaying,
+                                currentPlayingAudio = viewModel.currentSelectedAudio,
+                                onStart = {
+                                    viewModel.onUiEvents(UIEvents.PlayPause)
+                                },
+                                onItemClick = {
+                                    viewModel.onUiEvents(UIEvents.SelectedAudioChange(it))
+                                    startService()
+                                },
+                                onNext = {
+                                    viewModel.onUiEvents(UIEvents.SeekToNext)
+                                },
+                                onPrevious = {
+                                    viewModel.onUiEvents(UIEvents.SeekToPrevious)
+                                },
+                                addedAudioList = musicList,
+                                audioList = viewModel.audioList,
+                            )}
                         }
                     }
                 }
@@ -143,4 +172,5 @@ class MainActivity : ComponentActivity() {
         isServiceRunning = true
     }
 }
+
 

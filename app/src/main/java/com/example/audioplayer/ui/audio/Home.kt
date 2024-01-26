@@ -1,6 +1,10 @@
 package com.example.audioplayer.ui.audio
 
+import android.provider.MediaStore
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,15 +17,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -40,6 +46,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
 import com.example.audioplayer.data.local.model.Audio
 import kotlin.math.floor
 
@@ -52,7 +60,9 @@ fun HomeScreen(
     audioList: List<Audio>,
     onStart: () -> Unit,
     onItemClick: (Int) -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onPrevious: () -> Unit,
+    addedAudioList: MutableList<Audio>
 ) {
     Scaffold(
         bottomBar = {
@@ -62,6 +72,7 @@ fun HomeScreen(
                 audio = currentPlayingAudio,
                 onStart = onStart,
                 onNext = onNext,
+                onPrevious = onPrevious,
                 isAudioPlaying = isAudioPlaying
             )
         }
@@ -72,7 +83,9 @@ fun HomeScreen(
             itemsIndexed(audioList) { index, audio ->
                 AudioItem(
                     audio = audio,
-                    onItemClick = { onItemClick(index) }
+                    onItemClick = { onItemClick(index) },
+                    onAddClick = { addedAudioList.add(audio) },
+                    icon = Icons.Default.Add
                 )
             }
         }
@@ -80,14 +93,54 @@ fun HomeScreen(
 }
 
 @Composable
-fun MusicListScreen() {
+fun MusicListScreen(
+    audioList: List<Audio>,
+    progress: Float,
+    onProgress: (Float) -> Unit,
+    isAudioPlaying: Boolean,
+    currentPlayingAudio: Audio,
+    onStart: () -> Unit,
+    onItemClick: (Int) -> Unit,
+    onNext: () -> Unit,
+    onPrevious: () -> Unit,
+    addedAudioList: MutableList<Audio>
 
+) {
+    Scaffold(
+        bottomBar = {
+
+            BottomBarPlayer(
+                progress = progress,
+                onProgress = onProgress,
+                audio = currentPlayingAudio,
+                onStart = onStart,
+                onNext = onNext,
+                onPrevious = onPrevious,
+                isAudioPlaying = isAudioPlaying
+            )
+        }
+    ) {
+        LazyColumn(
+            contentPadding = it
+        ) {
+            itemsIndexed(addedAudioList) { _, audio ->
+                AudioItem(
+                    audio = audio,
+                    onItemClick = { onItemClick(audioList.indexOf(audio)) },
+                    onAddClick = { addedAudioList.remove(audio) },
+                    icon = Icons.Default.Delete
+                )
+            }
+        }
+    }
 }
 
 @Composable
 fun AudioItem(
     audio: Audio,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    onAddClick: () -> Unit,
+    icon: ImageVector
 ) {
     Card(
         modifier = Modifier
@@ -130,19 +183,11 @@ fun AudioItem(
                 text = timeStampToDuration(audio.duration.toLong())
             )
             Spacer(modifier = Modifier.size(8.dp))
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+            IconButton(onClick = onAddClick) {
+                Icon(icon, contentDescription = "Add")
             }
         }
     }
-}
-
-private fun timeStampToDuration(position: Long): String {
-    val totalSecond = floor(position / 1E3).toInt()
-    val minutes = totalSecond / 60
-    val remainingSeconds = totalSecond - (minutes * 60)
-    return if (position < 0) "--:--"
-    else "%d:%02d".format(minutes, remainingSeconds)
 }
 
 @Composable
@@ -152,15 +197,16 @@ fun BottomBarPlayer(
     audio: Audio,
     isAudioPlaying: Boolean,
     onStart: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onPrevious: () -> Unit
 ) {
+
     BottomAppBar(
         modifier = Modifier.fillMaxHeight(0.15f),
         content = {
             Column(
                 modifier = Modifier.padding(8.dp)
             ) {
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,7 +219,7 @@ fun BottomBarPlayer(
                         modifier = Modifier.weight(1f)
                     )
                     MediaPlayerController(
-                        isAudioPlaying, onStart, onNext
+                        isAudioPlaying, onStart, onNext, onPrevious
                     )
                 }
                 Slider(
@@ -190,7 +236,8 @@ fun BottomBarPlayer(
 fun MediaPlayerController(
     isAudioPlaying: Boolean,
     onStart: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onPrevious: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -198,6 +245,14 @@ fun MediaPlayerController(
             .height(56.dp)
             .padding(4.dp)
     ) {
+        Icon(
+            imageVector = Icons.Default.SkipPrevious,
+            modifier = Modifier.clickable {
+                onPrevious()
+            },
+            contentDescription = null
+        )
+        Spacer(modifier = Modifier.size(8.dp))
         PlayerIconItem(
             icon = if (isAudioPlaying) Icons.Default.Pause
             else Icons.Default.PlayArrow
@@ -288,3 +343,12 @@ fun PlayerIconItem(
         }
     }
 }
+
+private fun timeStampToDuration(position: Long): String {
+    val totalSecond = floor(position / 1E3).toInt()
+    val minutes = totalSecond / 60
+    val remainingSeconds = totalSecond - (minutes * 60)
+    return if (position < 0) "--:--"
+    else "%d:%02d".format(minutes, remainingSeconds)
+}
+

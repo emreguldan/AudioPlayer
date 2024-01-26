@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -27,6 +28,7 @@ import javax.inject.Inject
 private val audioDummy = Audio(
     "".toUri(),"",0L,"","",0,""
 )
+
 
 @HiltViewModel
 class AudioViewModel @Inject constructor(
@@ -67,7 +69,6 @@ class AudioViewModel @Inject constructor(
             }
         }
     }
-
     private fun loadAudioData(){
         viewModelScope.launch {
             val audio = repository.getAudioData()
@@ -105,6 +106,8 @@ class AudioViewModel @Inject constructor(
             UIEvents.BackWard -> audioServiceHandler.onPlayerEvents(PlayerEvent.BackWard)
             UIEvents.Forward -> audioServiceHandler.onPlayerEvents(PlayerEvent.Forward)
             UIEvents.SeekToNext -> audioServiceHandler.onPlayerEvents(PlayerEvent.SeekToNext)
+            UIEvents.SeekToPrevious -> audioServiceHandler.onPlayerEvents(PlayerEvent.SeekToPrevious)
+
             is UIEvents.PlayPause -> {
                 audioServiceHandler.onPlayerEvents(
                     PlayerEvent.PlayPause
@@ -145,7 +148,6 @@ class AudioViewModel @Inject constructor(
         }
         super.onCleared()
     }
-
 }
 
 sealed class UIEvents{
@@ -153,6 +155,7 @@ sealed class UIEvents{
     data class SelectedAudioChange(val index:Int):UIEvents()
     data class SeekTo(val position:Float):UIEvents()
     data object SeekToNext:UIEvents()
+    data object SeekToPrevious:UIEvents()
     data object BackWard:UIEvents()
     data object Forward:UIEvents()
     data class UpdateProgress(val newProgress:Float):UIEvents()

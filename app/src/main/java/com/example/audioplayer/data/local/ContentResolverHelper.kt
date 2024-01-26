@@ -74,7 +74,6 @@ constructor(@ApplicationContext val context: Context) {
                             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                             id
                         )
-
                         audioList += Audio(
                             uri, displayName, id, artist, data, duration, title
                         )
