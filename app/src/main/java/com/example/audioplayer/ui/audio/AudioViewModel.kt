@@ -1,6 +1,5 @@
 package com.example.audioplayer.ui.audio
 
-import android.util.Log
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,11 +51,6 @@ class AudioViewModel @Inject constructor(
     var audioList by savedStateHandle.saveable { mutableStateOf(listOf<Audio>())}
 
     private val _uiState : MutableStateFlow<UIState> = MutableStateFlow(UIState.Initial)
-
-    private val _audioListState: MutableStateFlow<List<Audio>> = MutableStateFlow(emptyList())
-    val audioListState: StateFlow<List<Audio>> = _audioListState.asStateFlow()
-
-
 
 
     //val uiState: StateFlow<UIState> = _uiState.asStateFlow()
