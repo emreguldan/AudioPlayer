@@ -1,5 +1,6 @@
 package com.example.audioplayer.ui.audio
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import com.example.audioplayer.data.local.model.Audio
 import kotlin.math.floor
 
@@ -96,12 +98,12 @@ fun MusicListScreen(
     onItemClick: (Int) -> Unit,
     onNext: () -> Unit,
     onPrevious: () -> Unit,
-    addedAudioList: MutableList<Audio>
+    addedAudioList: MutableList<Audio>,
+    viewModel: AudioViewModel
 
 ) {
     Scaffold(
         bottomBar = {
-
             BottomBarPlayer(
                 progress = progress,
                 onProgress = onProgress,
@@ -120,7 +122,10 @@ fun MusicListScreen(
                 AudioItem(
                     audio = audio,
                     onItemClick = { onItemClick(audioList.indexOf(audio)) },
-                    onAddClick = { addedAudioList.remove(audio) },
+                    onAddClick = { addedAudioList.remove(audio);
+                        viewModel.clearMediaItems()
+                        captureList(addedAudioList)
+                        viewModel.loadAudioListData() },
                     icon = Icons.Default.Delete
                 )
             }

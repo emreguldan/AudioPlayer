@@ -37,6 +37,10 @@ class AudioServiceHandler @Inject constructor(
         exoPlayer.prepare()
     }
 
+    fun clearMediaItemList(){
+        exoPlayer.clearMediaItems()
+    }
+
     suspend fun onPlayerEvents(
         playerEvent: PlayerEvent,
         selectedAudioIndex:Int = -1,

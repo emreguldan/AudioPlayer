@@ -1,5 +1,6 @@
 package com.example.audioplayer.ui.audio
 
+import android.util.Log
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,8 @@ import com.example.audioplayer.player.service.AudioState
 import com.example.audioplayer.player.service.PlayerEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -26,7 +29,13 @@ import javax.inject.Inject
 private val audioDummy = Audio(
     "".toUri(),"",0L,"","",0,""
 )
+var newList = mutableListOf<Audio>()
 
+fun captureList(
+    musicList: MutableList<Audio>
+) {
+    newList = musicList
+}
 
 @OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
@@ -43,10 +52,18 @@ class AudioViewModel @Inject constructor(
     var audioList by savedStateHandle.saveable { mutableStateOf(listOf<Audio>())}
 
     private val _uiState : MutableStateFlow<UIState> = MutableStateFlow(UIState.Initial)
+
+    private val _audioListState: MutableStateFlow<List<Audio>> = MutableStateFlow(emptyList())
+    val audioListState: StateFlow<List<Audio>> = _audioListState.asStateFlow()
+
+
+
+
     //val uiState: StateFlow<UIState> = _uiState.asStateFlow()
 
     init {
         loadAudioData()
+
     }
 
     init {
@@ -68,12 +85,26 @@ class AudioViewModel @Inject constructor(
             }
         }
     }
-    private fun loadAudioData(){
+    fun loadAudioData(){
         viewModelScope.launch {
             val audio = repository.getAudioData()
             audioList = audio
             setMediaItems()
         }
+    }
+
+
+
+    fun loadAudioListData(){
+        viewModelScope.launch {
+            val audio = newList
+            audioList = audio
+            setMediaItems()
+        }
+    }
+
+    fun clearMediaItems(){
+        audioServiceHandler.clearMediaItemList()
     }
 
     private fun setMediaItems(){
@@ -96,7 +127,7 @@ class AudioViewModel @Inject constructor(
     private fun calculateProgressValue(currentProgress:Long){
         progress =
             if (currentProgress > 0) ((currentProgress.toFloat() / duration.toFloat()) * 100f)
-        else 0f
+            else 0f
         progressString = formatDuration(currentProgress)
     }
 
@@ -153,7 +184,7 @@ sealed class UIEvents{
     data object PlayPause:UIEvents()
     data class SelectedAudioChange(val index:Int):UIEvents()
     data class SeekTo(val position:Float):UIEvents()
-    data object SeekToNext:UIEvents()
+    data object SeekToNext : UIEvents()
     data object SeekToPrevious:UIEvents()
     data object BackWard:UIEvents()
     data object Forward:UIEvents()
