@@ -27,6 +27,8 @@ import com.example.audioplayer.ui.audio.AudioViewModel
 import com.example.audioplayer.ui.audio.HomeScreen
 import com.example.audioplayer.ui.audio.MusicListScreen
 import com.example.audioplayer.ui.audio.UIEvents
+import com.example.audioplayer.ui.audio.audioDummy
+import com.example.audioplayer.ui.audio.audioPlayerVisible
 import com.example.audioplayer.ui.audio.captureList
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
@@ -64,9 +66,15 @@ fun ScreenNavigation(
                                 viewModel.clearMediaItems()
                                 captureList(musicList)
                                 viewModel.loadAudioListData()
+                                audioPlayerVisible = false
+                                viewModel.stopMedia()
+
+
                             }else if (screen.title == "Find Music") {
                                 viewModel.clearMediaItems()
                                 viewModel.loadAudioData()
+                                audioPlayerVisible = false
+                                viewModel.stopMedia()
                             }
 
                             navController.navigate(screen.route) {
@@ -88,7 +96,6 @@ fun ScreenNavigation(
             Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
-
                 HomeScreen(
                     progress = viewModel.progress,
                     onProgress = { viewModel.onUiEvents(UIEvents.SeekTo(it)) },
@@ -101,6 +108,7 @@ fun ScreenNavigation(
                     onItemClick = {
                         viewModel.onUiEvents(UIEvents.SelectedAudioChange(it))
                         startService()
+                        audioPlayerVisible = true
                     },
                     onNext = {
                         viewModel.onUiEvents(UIEvents.SeekToNext)
@@ -109,6 +117,7 @@ fun ScreenNavigation(
                         viewModel.onUiEvents(UIEvents.SeekToPrevious)
                     },
                     addedAudioList = musicList
+
                 )
             }
             composable(Screen.List.route) {
@@ -124,6 +133,7 @@ fun ScreenNavigation(
                     onItemClick = {
                         viewModel.onUiEvents(UIEvents.SelectedAudioChange(it))
                         startService()
+                        audioPlayerVisible = true
                     },
                     onNext = {
                         viewModel.onUiEvents(UIEvents.SeekToNext)

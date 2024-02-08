@@ -25,9 +25,11 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-private val audioDummy = Audio(
+
+val audioDummy = Audio(
     "".toUri(),"",0L,"","",0,""
 )
+
 var newList = mutableListOf<Audio>()
 
 fun captureList(
@@ -99,6 +101,10 @@ class AudioViewModel @Inject constructor(
 
     fun clearMediaItems(){
         audioServiceHandler.clearMediaItemList()
+    }
+
+    fun stopMedia(){
+        audioServiceHandler.stopMedia()
     }
 
     private fun setMediaItems(){
@@ -189,3 +195,4 @@ sealed class UIState{
     data object Initial:UIState()
     data object Ready:UIState()
 }
+

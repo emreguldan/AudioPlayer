@@ -1,5 +1,7 @@
 package com.example.audioplayer.ui.audio
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +25,9 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,18 +36,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.example.audioplayer.data.local.model.Audio
 import kotlin.math.floor
 
+var audioPlayerVisible = false
 @Composable
 fun HomeScreen(
     progress: Float,
@@ -59,25 +68,39 @@ fun HomeScreen(
 ) {
     Scaffold(
         bottomBar = {
-            BottomBarPlayer(
-                progress = progress,
-                onProgress = onProgress,
-                audio = currentPlayingAudio,
-                onStart = onStart,
-                onNext = onNext,
-                onPrevious = onPrevious,
-                isAudioPlaying = isAudioPlaying
-            )
+            if (audioPlayerVisible) {
+                BottomBarPlayer(
+                    progress = progress,
+                    onProgress = onProgress,
+                    audio = currentPlayingAudio,
+                    onStart = onStart,
+                    onNext = onNext,
+                    onPrevious = onPrevious,
+                    isAudioPlaying = isAudioPlaying
+                )
+            } else {null}
         }
     ) {
+        val context = LocalContext.current
         LazyColumn(
             contentPadding = it
         ) {
             itemsIndexed(audioList) { index, audio ->
+                val alreadyAdded = addedAudioList.contains(audio)
                 AudioItem(
                     audio = audio,
-                    onItemClick = { onItemClick(index) },
-                    onAddClick = { addedAudioList.add(audio) },
+                    onItemClick = { onItemClick(index) } ,
+                    onAddClick = {
+                        if (!alreadyAdded) {
+                            addedAudioList.add(audio)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "This audio is already added!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
                     icon = Icons.Default.Add
                 )
             }
@@ -102,15 +125,17 @@ fun MusicListScreen(
 ) {
     Scaffold(
         bottomBar = {
-            BottomBarPlayer(
-                progress = progress,
-                onProgress = onProgress,
-                audio = currentPlayingAudio,
-                onStart = onStart,
-                onNext = onNext,
-                onPrevious = onPrevious,
-                isAudioPlaying = isAudioPlaying
-            )
+            if (audioPlayerVisible) {
+                BottomBarPlayer(
+                    progress = progress,
+                    onProgress = onProgress,
+                    audio = currentPlayingAudio,
+                    onStart = onStart,
+                    onNext = onNext,
+                    onPrevious = onPrevious,
+                    isAudioPlaying = isAudioPlaying
+                )
+            } else {null}
         }
     ) {
         LazyColumn(
@@ -120,10 +145,12 @@ fun MusicListScreen(
                 AudioItem(
                     audio = audio,
                     onItemClick = { onItemClick(audioList.indexOf(audio)) },
-                    onAddClick = { addedAudioList.remove(audio);
+                    onAddClick = {
+                        addedAudioList.remove(audio);
                         viewModel.clearMediaItems()
                         captureList(addedAudioList)
-                        viewModel.loadAudioListData() },
+                        viewModel.loadAudioListData()
+                    },
                     icon = Icons.Default.Delete
                 )
             }
@@ -346,4 +373,3 @@ private fun timeStampToDuration(position: Long): String {
     return if (position < 0) "--:--"
     else "%d:%02d".format(minutes, remainingSeconds)
 }
-

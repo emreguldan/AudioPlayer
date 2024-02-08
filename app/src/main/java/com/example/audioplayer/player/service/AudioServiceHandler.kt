@@ -2,6 +2,7 @@ package com.example.audioplayer.player.service
 
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class AudioServiceHandler @Inject constructor(
     private val exoPlayer: ExoPlayer
 ): Player.Listener {
+
     private val _audioState : MutableStateFlow<AudioState> =
         MutableStateFlow(AudioState.Initial)
     val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
@@ -39,6 +41,10 @@ class AudioServiceHandler @Inject constructor(
 
     fun clearMediaItemList(){
         exoPlayer.clearMediaItems()
+    }
+
+    fun stopMedia(){
+        exoPlayer.pause()
     }
 
     suspend fun onPlayerEvents(
@@ -95,6 +101,8 @@ class AudioServiceHandler @Inject constructor(
         }
     }
 
+
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         _audioState.value = AudioState.Playing(isPlaying = isPlaying)
@@ -137,7 +145,7 @@ sealed class PlayerEvent{
     data object SelectedAudioChange:PlayerEvent()
     data object BackWard:PlayerEvent()
     data object SeekToNext:PlayerEvent()
-    data object  SeekToPrevious:PlayerEvent()
+    data object SeekToPrevious:PlayerEvent()
     data object Forward:PlayerEvent()
     data object SeekTo:PlayerEvent()
     data object Stop:PlayerEvent()
