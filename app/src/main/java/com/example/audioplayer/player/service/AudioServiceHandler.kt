@@ -2,6 +2,7 @@ package com.example.audioplayer.player.service
 
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,10 @@ class AudioServiceHandler @Inject constructor(
                 )
             }
         }
+    }
+
+    override fun onTracksChanged(tracks: Tracks) {
+        exoPlayer.seekBack()
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {
