@@ -1,10 +1,10 @@
 package com.example.audioplayer.ui
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
@@ -27,13 +27,12 @@ import com.example.audioplayer.ui.audio.AudioViewModel
 import com.example.audioplayer.ui.audio.HomeScreen
 import com.example.audioplayer.ui.audio.MusicListScreen
 import com.example.audioplayer.ui.audio.UIEvents
-import com.example.audioplayer.ui.audio.audioDummy
 import com.example.audioplayer.ui.audio.audioPlayerVisible
 import com.example.audioplayer.ui.audio.captureList
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
     data object Home : Screen("home_route", "Find Music", Icons.Default.Search)
-    data object List : Screen("list_route", "Music List", Icons.Default.List)
+    data object List : Screen("list_route", "Music List", Icons.AutoMirrored.Filled.List)
 }
 
 val items = listOf(
@@ -57,7 +56,7 @@ fun ScreenNavigation(
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
-                    BottomNavigationItem(
+                    NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = null) },
                         label = { Text(screen.title) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
@@ -126,7 +125,7 @@ fun ScreenNavigation(
                     progress = viewModel.progress,
                     onProgress = { viewModel.onUiEvents(UIEvents.SeekTo(it)) },
                     isAudioPlaying = viewModel.isPlaying,
-                    currentPlayingAudio = viewModel.currentSelectedAudio,
+                    currentPlayingAudio =viewModel.currentSelectedAudio,
                     onStart = {
                         viewModel.onUiEvents(UIEvents.PlayPause)
                     },

@@ -2,7 +2,6 @@ package com.example.audioplayer.player.service
 
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -19,8 +18,7 @@ class AudioServiceHandler @Inject constructor(
     private val exoPlayer: ExoPlayer
 ): Player.Listener {
 
-    private val _audioState : MutableStateFlow<AudioState> =
-        MutableStateFlow(AudioState.Initial)
+    private val _audioState : MutableStateFlow<AudioState> = MutableStateFlow(AudioState.Initial)
     val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
 
     private var job: Job? = null

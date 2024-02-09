@@ -1,6 +1,5 @@
 package com.example.audioplayer.ui.audio
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,9 +25,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,9 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,13 +42,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.example.audioplayer.data.local.model.Audio
 import kotlin.math.floor
 
 var audioPlayerVisible = false
+
 @Composable
 fun HomeScreen(
     progress: Float,
@@ -78,7 +75,9 @@ fun HomeScreen(
                     onPrevious = onPrevious,
                     isAudioPlaying = isAudioPlaying
                 )
-            } else {null}
+            } else {
+                null
+            }
         }
     ) {
         val context = LocalContext.current
@@ -89,7 +88,7 @@ fun HomeScreen(
                 val alreadyAdded = addedAudioList.contains(audio)
                 AudioItem(
                     audio = audio,
-                    onItemClick = { onItemClick(index) } ,
+                    onItemClick = { onItemClick(index) },
                     onAddClick = {
                         if (!alreadyAdded) {
                             addedAudioList.add(audio)
@@ -135,24 +134,38 @@ fun MusicListScreen(
                     onPrevious = onPrevious,
                     isAudioPlaying = isAudioPlaying
                 )
-            } else {null}
+            } else {
+                null
+            }
         }
     ) {
-        LazyColumn(
-            contentPadding = it
-        ) {
-            itemsIndexed(addedAudioList) { _, audio ->
-                AudioItem(
-                    audio = audio,
-                    onItemClick = { onItemClick(audioList.indexOf(audio)) },
-                    onAddClick = {
-                        addedAudioList.remove(audio);
-                        viewModel.clearMediaItems()
-                        captureList(addedAudioList)
-                        viewModel.loadAudioListData()
-                    },
-                    icon = Icons.Default.Delete
+        if (addedAudioList.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(
+                    text = "Your music list is empty!",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(alignment = Alignment.Center)
                 )
+            }
+        } else {
+            LazyColumn(
+                contentPadding = it
+            ) {
+                itemsIndexed(addedAudioList) { _, audio ->
+                    AudioItem(
+                        audio = audio,
+                        onItemClick = { onItemClick(audioList.indexOf(audio)) },
+                        onAddClick = {
+                            addedAudioList.remove(audio)
+                            viewModel.clearMediaItems()
+                            captureList(addedAudioList)
+                            viewModel.loadAudioListData()
+                        },
+                        icon = Icons.Default.Delete
+                    )
+                }
             }
         }
     }
